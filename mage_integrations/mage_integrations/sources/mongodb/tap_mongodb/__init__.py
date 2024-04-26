@@ -17,11 +17,12 @@ from mage_integrations.sources.messages import write_schema
 LOGGER = singer.get_logger()
 
 REQUIRED_CONFIG_KEYS = [
-    'host',
-    'port',
-    'user',
-    'password',
-    'database'
+    'connection_string'
+#    'host',
+#    'port',
+#    'user',
+#    'password',
+#    'database'
 ]
 
 IGNORE_DBS = ['system', 'local', 'config']
@@ -412,13 +413,14 @@ def build_client(config, logger=None):
     use_ssl = config.get('ssl') == 'true'
 
     connection_params = {
-        'host': config['host'],
-        'port': int(config['port']),
-        'username': config.get('user', None),
-        'password': config.get('password', None),
-        'ssl': use_ssl,
-        'replicaset': config.get('replica_set', None),
-        'readPreference': 'secondaryPreferred',
+        'connection_string': config['connection_string']
+    #    'host': config['host'],
+    #    'port': int(config['port']),
+    #    'username': config.get('user', None),
+    #    'password': config.get('password', None),
+    #    'ssl': use_ssl,
+    #    'replicaset': config.get('replica_set', None),
+    #    'readPreference': 'secondaryPreferred',
     }
     if config.get('authSource'):
         connection_params['authSource'] = config.get('authSource')
@@ -429,7 +431,8 @@ def build_client(config, logger=None):
     if not verify_mode and use_ssl:
         connection_params["ssl_cert_reqs"] = ssl.CERT_NONE
 
-    client = pymongo.MongoClient(**connection_params)
+    client = pymongo.MongoClient(connection_params['connection_string'])
+    #client = pymongo.MongoClient(**connection_params)
 
     logger.info(f"Connected to MongoDB host: {config['host']}, "
                 f"version: {client.server_info().get('version', 'unknown')}")
